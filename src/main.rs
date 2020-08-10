@@ -49,6 +49,17 @@ fn new_map() -> Vec<TileType> {
     map[xy_idx(79, y)] = TileType::Wall;
   }
 
+  let mut rng = rltk::RandomNumberGenerator::new();
+
+  for _i in 0..400 {
+    let x = rng.roll_dice(1, 79);
+    let y = rng.roll_dice(1, 49);
+    let idx = xy_idx(x, y);
+    if idx != xy_idx(40, 25) {
+      map[idx] = TileType::Wall;
+    }
+  }
+
   map
 }
 
@@ -96,7 +107,7 @@ fn draw_map(map: &[TileType], ctx: &mut Rltk) {
         y,
         RGB::from_f32(0.5, 0.5, 0.5),
         RGB::from_f32(0., 0., 0.),
-        rltk::to_cp437('.'),
+        rltk::to_cp437('#'),
       ),
     }
 
@@ -173,19 +184,6 @@ fn main() -> rltk::BError {
     })
     .with(Player {})
     .build();
-
-  for i in 0..10 {
-    gs.ecs
-      .create_entity()
-      .with(Position { x: i * 7, y: 20 })
-      .with(Renderable {
-        glyph: rltk::to_cp437('☺'),
-        fg: RGB::named(rltk::RED),
-        bg: RGB::named(rltk::BLACK),
-      })
-      .with(LeftMover {})
-      .build();
-  }
 
   rltk::main_loop(context, gs)
 }
