@@ -43,7 +43,7 @@ impl GameState for State {
     let map = self.ecs.fetch::<Map>();
 
     for (pos, render) in (&positions, &renderables).join() {
-      let idx = Map::xy_idx(pos.x, pos.y);
+      let idx = map.xy_idx(pos.x, pos.y);
       if map.visible_tiles[idx] {
         ctx.set(pos.x, pos.y, render.fg, render.bg, render.glyph);
       }
