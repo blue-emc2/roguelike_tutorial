@@ -170,17 +170,33 @@ impl BaseMap for Map {
     let w = self.width as usize;
 
     if self.is_exit_valid(x - 1, y) {
-      exits.push((idx - 1, 1.0))
-    };
+      exits.push((idx - 1, 1.0));
+    }
     if self.is_exit_valid(x + 1, y) {
-      exits.push((idx + 1, 1.0))
-    };
+      exits.push((idx + 1, 1.0));
+    }
     if self.is_exit_valid(x, y - 1) {
-      exits.push((idx - w, 1.0))
-    };
+      exits.push((idx - w, 1.0));
+    }
     if self.is_exit_valid(x, y + 1) {
-      exits.push((idx + w, 1.0))
-    };
+      exits.push((idx + w, 1.0));
+    }
+
+    if self.is_exit_valid(x - 1, y - 1) {
+      exits.push(((idx - w) - 1, 1.45));
+    }
+
+    if self.is_exit_valid(x + 1, y - 1) {
+      exits.push(((idx - w) + 1, 1.45));
+    }
+
+    if self.is_exit_valid(x - 1, y + 1) {
+      exits.push(((idx + w) - 1, 1.45));
+    }
+
+    if self.is_exit_valid(x + 1, y + 1) {
+      exits.push(((idx + w) + 1, 1.45));
+    }
 
     exits
   }

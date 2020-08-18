@@ -1,4 +1,4 @@
-use super::{Map, Player, Position, RunState, State, TileType, Viewshed};
+use super::{Map, Player, Position, RunState, State, Viewshed};
 use rltk::{Point, Rltk, VirtualKeyCode};
 use specs::prelude::*;
 use std::cmp::{max, min};
@@ -40,6 +40,10 @@ pub fn player_input(gs: &mut State, ctx: &mut Rltk) -> RunState {
       VirtualKeyCode::Down | VirtualKeyCode::J | VirtualKeyCode::S => {
         try_move_player(0, 1, &mut gs.ecs)
       }
+      VirtualKeyCode::Y | VirtualKeyCode::E => try_move_player(1, -1, &mut gs.ecs), // 右上
+      VirtualKeyCode::U | VirtualKeyCode::Q => try_move_player(-1, -1, &mut gs.ecs), // 左上
+      VirtualKeyCode::N | VirtualKeyCode::C => try_move_player(1, 1, &mut gs.ecs),  // 右下
+      VirtualKeyCode::B | VirtualKeyCode::Z => try_move_player(-1, 1, &mut gs.ecs), // 左下
       _ => return RunState::Paused,
     },
   }
