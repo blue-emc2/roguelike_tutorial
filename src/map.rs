@@ -18,9 +18,16 @@ pub struct Map {
   pub revealed_tiles: Vec<bool>, // 認識したタイル
   pub visible_tiles: Vec<bool>,  // 表示したタイル
   pub blocked: Vec<bool>,
+  pub tile_content: Vec<Vec<Entity>>,
 }
 
 impl Map {
+  pub fn clear_content_index(&mut self) {
+    for content in self.tile_content.iter_mut() {
+      content.clear();
+    }
+  }
+
   pub fn xy_idx(&self, x: i32, y: i32) -> usize {
     (y as usize * 80) + x as usize
   }
@@ -62,6 +69,7 @@ impl Map {
       revealed_tiles: vec![false; 80 * 50],
       visible_tiles: vec![false; 80 * 50],
       blocked: vec![false; 80 * 50],
+      tile_content: vec![Vec::new(); 80 * 50],
     };
 
     const MAX_ROOMS: i32 = 30;
