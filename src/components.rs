@@ -37,6 +37,7 @@ pub struct Name {
 #[derive(Component, Debug)]
 pub struct BlocksTile {}
 
+// 戦闘のステータス
 #[derive(Component, Debug)]
 pub struct CombatStats {
   pub max_hp: i32,
@@ -45,6 +46,7 @@ pub struct CombatStats {
   pub power: i32,
 }
 
+// 攻撃の意図を示すコンポーネント
 #[derive(Component, Debug, Clone)]
 pub struct WantsToMelee {
   pub target: Entity,

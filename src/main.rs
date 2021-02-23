@@ -84,6 +84,7 @@ fn main() -> rltk::BError {
     ecs: World::new(),
     runstate: RunState::Running,
   };
+  // Componentを登録
   gs.ecs.register::<Position>();
   gs.ecs.register::<Renderable>();
   gs.ecs.register::<Player>();
@@ -100,7 +101,8 @@ fn main() -> rltk::BError {
 
   let player_entity = gs
     .ecs
-    .create_entity()
+    .create_entity() // EntityをWorldに追加
+    // PlayerEntityとComponentの紐付け
     .with(Position {
       x: player_x,
       y: player_y,

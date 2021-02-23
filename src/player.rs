@@ -1,5 +1,4 @@
 use super::{CombatStats, Map, Player, Position, RunState, State, Viewshed, WantsToMelee};
-use rltk::console;
 use rltk::{Point, Rltk, VirtualKeyCode};
 use specs::prelude::*;
 use std::cmp::{max, min};
@@ -21,7 +20,6 @@ pub fn try_move_player(delta_x: i32, delta_y: i32, ecs: &mut World) {
       || pos.y + delta_y < 1
       || pos.y + delta_y > map.height - 1
     {
-      console::log("pos");
       return;
     }
 
@@ -30,6 +28,7 @@ pub fn try_move_player(delta_x: i32, delta_y: i32, ecs: &mut World) {
     for potential_target in map.tile_content[destination_idx].iter() {
       let target = combat_stats.get(*potential_target);
       if let Some(_target) = target {
+        println!("entity id={}", entity.id());
         wants_to_melee
           .insert(
             entity,
