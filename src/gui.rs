@@ -1,4 +1,4 @@
-use super::CombatStats;
+use super::{gamelog::GameLog, CombatStats};
 use rltk::{Console, Rltk, RGB};
 use specs::prelude::*;
 
@@ -31,5 +31,15 @@ pub fn draw_ui(ecs: &World, ctx: &mut Rltk) {
       RGB::named(rltk::RED),
       RGB::named(rltk::BLACK),
     );
+  }
+
+  let log = ecs.fetch::<GameLog>();
+
+  let mut y = 44; // ログの描画の始点
+  for s in log.entries.iter().rev() {
+    if y < 49 {
+      ctx.print(2, y, s);
+    }
+    y += 1;
   }
 }
