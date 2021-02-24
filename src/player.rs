@@ -56,7 +56,7 @@ pub fn try_move_player(delta_x: i32, delta_y: i32, ecs: &mut World) {
 
 pub fn player_input(gs: &mut State, ctx: &mut Rltk) -> RunState {
   match ctx.key {
-    None => return RunState::Paused,
+    None => return RunState::AwaitingInput,
     Some(key) => match key {
       VirtualKeyCode::Left | VirtualKeyCode::H | VirtualKeyCode::A => {
         try_move_player(-1, 0, &mut gs.ecs)
@@ -74,8 +74,8 @@ pub fn player_input(gs: &mut State, ctx: &mut Rltk) -> RunState {
       VirtualKeyCode::U | VirtualKeyCode::Q => try_move_player(-1, -1, &mut gs.ecs), // 左上
       VirtualKeyCode::N | VirtualKeyCode::C => try_move_player(1, 1, &mut gs.ecs),  // 右下
       VirtualKeyCode::B | VirtualKeyCode::Z => try_move_player(-1, 1, &mut gs.ecs), // 左下
-      _ => return RunState::Paused,
+      _ => return RunState::AwaitingInput,
     },
   }
-  RunState::Running
+  RunState::PlayerTurn
 }
