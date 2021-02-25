@@ -42,4 +42,7 @@ pub fn draw_ui(ecs: &World, ctx: &mut Rltk) {
     }
     y += 1;
   }
+
+  let mouse_pos = ctx.mouse_pos();
+  ctx.set_bg(mouse_pos.0, mouse_pos.1, RGB::named(rltk::MAGENTA));
 }
