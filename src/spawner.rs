@@ -1,6 +1,6 @@
 use super::{
-  map::MAPWIDTH, BlocksTile, CombatStats, Monster, Name, Player, Position, Rect, Renderable,
-  Viewshed,
+  map::MAPWIDTH, BlocksTile, CombatStats, Item, Monster, Name, Player, Position, Potion, Rect,
+  Renderable, Viewshed,
 };
 use rltk::{RandomNumberGenerator, RGB};
 use specs::prelude::*;
@@ -87,15 +87,34 @@ fn monster<S: ToString>(ecs: &mut World, x: i32, y: i32, glyph: rltk::FontCharTy
     .build();
 }
 
+fn health_potion(ecs: &mut World, x: i32, y: i32) {
+  ecs
+    .create_entity()
+    .with(Position { x, y })
+    .with(Renderable {
+      glyph: rltk::to_cp437('¡'),
+      fg: RGB::named(rltk::MAGENTA),
+      bg: RGB::named(rltk::BLACK),
+    })
+    .with(Name {
+      name: "Health Potion".to_string(),
+    })
+    .with(Item {})
+    .with(Potion { heal_amount: 8 })
+    .build();
+}
+
 /// Fills a room with stuff!
 pub fn spawn_room(ecs: &mut World, room: &Rect) {
   let mut monster_spawn_points: Vec<usize> = Vec::new();
+  let mut item_spawn_points: Vec<usize> = Vec::new();
 
   // 不変参照のあとに可変参照ができないのでコンパイルエラーがおこる
   // https://doc.rust-jp.rs/book-ja/ch04-02-references-and-borrowing.html#%E5%8F%AF%E5%A4%89%E3%81%AA%E5%8F%82%E7%85%A7
   {
     let mut rng = ecs.write_resource::<RandomNumberGenerator>(); // ecs->ここで不変参照
     let num_monsters = rng.roll_dice(1, MAX_MONSTERS + 2) - 3;
+    let num_items = rng.roll_dice(1, MAX_ITEMS + 2) - 3;
 
     for _i in 0..num_monsters {
       let mut added = false;
@@ -110,6 +129,19 @@ pub fn spawn_room(ecs: &mut World, room: &Rect) {
         }
       }
     }
+
+    for _i in 0..num_items {
+      let mut added = false;
+      while !added {
+        let x = (room.x1 + rng.roll_dice(1, i32::abs(room.x2 - room.x1))) as usize;
+        let y = (room.y1 + rng.roll_dice(1, i32::abs(room.y2 - room.y1))) as usize;
+        let idx = (y * MAPWIDTH) + x;
+        if !item_spawn_points.contains(&idx) {
+          item_spawn_points.push(idx);
+          added = true;
+        }
+      }
+    }
   }
   // ここのカッコではじめのecsのスコープが終わる
   // 下のecsは引数の可変参照のecsとしてつかう
@@ -120,5 +152,12 @@ pub fn spawn_room(ecs: &mut World, room: &Rect) {
     let x = *idx % MAPWIDTH;
     let y = *idx / MAPWIDTH;
     random_monster(ecs, x as i32, y as i32); // ecs->ここで可変参照
+  }
+
+  // Actually spawn the potions
+  for idx in item_spawn_points.iter() {
+    let x = *idx % MAPWIDTH;
+    let y = *idx / MAPWIDTH;
+    health_potion(ecs, x as i32, y as i32);
   }
 }
