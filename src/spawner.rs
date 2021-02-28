@@ -1,6 +1,12 @@
-use super::{BlocksTile, CombatStats, Monster, Name, Player, Position, Renderable, Viewshed};
+use super::{
+  map::MAPWIDTH, BlocksTile, CombatStats, Monster, Name, Player, Position, Rect, Renderable,
+  Viewshed,
+};
 use rltk::{RandomNumberGenerator, RGB};
 use specs::prelude::*;
+
+const MAX_MONSTERS: i32 = 4;
+const MAX_ITEMS: i32 = 2;
 
 /// Spawns the player and returns his/her entity object.
 pub fn player(ecs: &mut World, player_x: i32, player_y: i32) -> Entity {
@@ -79,4 +85,40 @@ fn monster<S: ToString>(ecs: &mut World, x: i32, y: i32, glyph: rltk::FontCharTy
       power: 4,
     })
     .build();
+}
+
+/// Fills a room with stuff!
+pub fn spawn_room(ecs: &mut World, room: &Rect) {
+  let mut monster_spawn_points: Vec<usize> = Vec::new();
+
+  // 不変参照のあとに可変参照ができないのでコンパイルエラーがおこる
+  // https://doc.rust-jp.rs/book-ja/ch04-02-references-and-borrowing.html#%E5%8F%AF%E5%A4%89%E3%81%AA%E5%8F%82%E7%85%A7
+  {
+    let mut rng = ecs.write_resource::<RandomNumberGenerator>(); // ecs->ここで不変参照
+    let num_monsters = rng.roll_dice(1, MAX_MONSTERS + 2) - 3;
+
+    for _i in 0..num_monsters {
+      let mut added = false;
+      while !added {
+        let x = (room.x1 + rng.roll_dice(1, i32::abs(room.x2 - room.x1))) as usize;
+        let y = (room.y1 + rng.roll_dice(1, i32::abs(room.y2 - room.y1))) as usize;
+        // 出現位置を決める通し番号
+        let idx = (y * MAPWIDTH) + x;
+        if !monster_spawn_points.contains(&idx) {
+          monster_spawn_points.push(idx);
+          added = true;
+        }
+      }
+    }
+  }
+  // ここのカッコではじめのecsのスコープが終わる
+  // 下のecsは引数の可変参照のecsとしてつかう
+
+  // Actually spawn the monsters
+  for idx in monster_spawn_points.iter() {
+    // 通し番号から座標を算出
+    let x = *idx % MAPWIDTH;
+    let y = *idx / MAPWIDTH;
+    random_monster(ecs, x as i32, y as i32); // ecs->ここで可変参照
+  }
 }
