@@ -1,4 +1,7 @@
-use super::{CombatStats, Map, Player, Position, RunState, State, Viewshed, WantsToMelee};
+use super::{
+  gamelog::GameLog, CombatStats, Item, Map, Player, Position, RunState, State, Viewshed,
+  WantsToMelee, WantsToPickupItem,
+};
 use rltk::{Point, Rltk, VirtualKeyCode};
 use specs::prelude::*;
 use std::cmp::{max, min};
@@ -74,8 +77,48 @@ pub fn player_input(gs: &mut State, ctx: &mut Rltk) -> RunState {
       VirtualKeyCode::U | VirtualKeyCode::Q => try_move_player(-1, -1, &mut gs.ecs), // 左上
       VirtualKeyCode::N | VirtualKeyCode::C => try_move_player(1, 1, &mut gs.ecs),  // 右下
       VirtualKeyCode::B | VirtualKeyCode::Z => try_move_player(-1, 1, &mut gs.ecs), // 左下
+      VirtualKeyCode::G => get_item(&mut gs.ecs),
       _ => return RunState::AwaitingInput,
     },
   }
   RunState::PlayerTurn
+}
+
+fn get_item(ecs: &mut World) {
+  let player_pos = ecs.fetch::<Point>();
+  let player_entity = ecs.fetch::<Entity>();
+  let entities = ecs.entities();
+  let items = ecs.read_storage::<Item>();
+  let positions = ecs.read_storage::<Position>();
+  let mut gamelog = ecs.fetch_mut::<GameLog>();
+
+  let mut target_item: Option<Entity> = None;
+  for (item_entity, _item, position) in (&entities, &items, &positions).join() {
+    // println!("position.x={}, player_pos.x={}", position.x, player_pos.x);
+    // println!("position.y={}, player_pos.y={}", position.y, player_pos.y);
+    // プレイヤーと座標が重なる"もの"をアイテムとみなす
+    if position.x == player_pos.x && position.y == player_pos.y {
+      target_item = Some(item_entity);
+    }
+  }
+
+  // 上の判定でなにもかからなければ何も拾ってない
+  match target_item {
+    None => gamelog
+      .entries
+      .push("There is nothing here to pick up.".to_string()),
+    Some(item) => {
+      let mut pickup = ecs.write_storage::<WantsToPickupItem>();
+      // ここでインサートされたエンティティはItemCollectionSystemで取り出される
+      pickup
+        .insert(
+          *player_entity,
+          WantsToPickupItem {
+            collected_by: *player_entity,
+            item,
+          },
+        )
+        .expect("Unable to insert want to pickup");
+    }
+  }
 }

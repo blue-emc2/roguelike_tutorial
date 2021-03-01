@@ -1,4 +1,4 @@
-use rltk::{GameState, Point, Rltk, RGB};
+use rltk::{GameState, Point, Rltk};
 use specs::prelude::*;
 
 mod components;
@@ -21,7 +21,9 @@ mod melee_combat_system;
 use melee_combat_system::MeleeCombatSystem;
 mod gamelog;
 mod gui;
+mod inventory_system;
 mod spawner;
+use inventory_system::ItemCollectionSystem;
 
 #[derive(PartialEq, Copy, Clone)]
 pub enum RunState {
@@ -98,6 +100,8 @@ impl State {
     melee.run_now(&self.ecs);
     let mut damage = DamageSystem {};
     damage.run_now(&self.ecs);
+    let mut pickup = ItemCollectionSystem {};
+    pickup.run_now(&self.ecs);
     self.ecs.maintain();
   }
 }
@@ -122,6 +126,8 @@ fn main() -> rltk::BError {
   gs.ecs.register::<SufferDamage>();
   gs.ecs.register::<Item>();
   gs.ecs.register::<Potion>();
+  gs.ecs.register::<InBackpack>();
+  gs.ecs.register::<WantsToPickupItem>();
 
   let map: Map = Map::new_map_rooms_and_corridors();
   let (player_x, player_y) = map.rooms[0].center();
