@@ -78,6 +78,7 @@ pub fn player_input(gs: &mut State, ctx: &mut Rltk) -> RunState {
       VirtualKeyCode::N | VirtualKeyCode::C => try_move_player(1, 1, &mut gs.ecs),  // 右下
       VirtualKeyCode::B | VirtualKeyCode::Z => try_move_player(-1, 1, &mut gs.ecs), // 左下
       VirtualKeyCode::G => get_item(&mut gs.ecs),
+      VirtualKeyCode::I => return RunState::ShowInventory,
       _ => return RunState::AwaitingInput,
     },
   }

@@ -5,8 +5,8 @@ use super::{
 use rltk::{RandomNumberGenerator, RGB};
 use specs::prelude::*;
 
-const MAX_MONSTERS: i32 = 4;
-const MAX_ITEMS: i32 = 2;
+const MAX_MONSTERS: i32 = 0;
+const MAX_ITEMS: i32 = 10;
 
 /// Spawns the player and returns his/her entity object.
 pub fn player(ecs: &mut World, player_x: i32, player_y: i32) -> Entity {
